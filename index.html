@@ -133,7 +133,7 @@ button{
     <h3>⭐ Catch the Stars</h3>
     <div id="gameArea" style="height:250px;background:#020617;border-radius:14px;position:relative;overflow:hidden;margin-bottom:6px"></div>
     <div id="scoreBox">Score: 0</div>
-
+    <div id="leaderboard" style="text-align:left;font-size:.85rem;max-height:120px;overflow:auto;margin-top:8px"></div>
     <div class="flex center">
       <button onclick="startGame()">Start</button>
       <button onclick="closeGame()">Close</button>
@@ -174,4 +174,158 @@ function generate(){
   const name=document.getElementById("nameInput").value.trim();
   if(!name){alert("Enter a name 🙂");return;}
   const cat=document.getElementById("category").value;
-  const t=data[cat][Math.floor(Math.random()*data[cat]()*]()
+  const t=data[cat][Math.floor(Math.random()*data[cat].length)]
+    .replaceAll("{name}",name);
+
+  const box=document.getElementById("shayariBox");
+  box.classList.remove("show");
+  box.innerText=t;
+  setTimeout(()=>box.classList.add("show"),10);
+
+  // love % always 60–100
+  const love=60+Math.floor(Math.random()*41);
+  document.getElementById("loveLevel").innerText =
+    `❤️ Love level: ${love}%`;
+  document.getElementById("fromBox").innerText =
+    "— With love, Zenith Mahla";
+
+  lastMessage = `${t}\nLove level: ${love}%\n— With love, Zenith Mahla`;
+
+  // save entry
+  saveEntry({name,category:cat,love});
+  renderStats();
+  spawnFirework(18);
+}
+
+// ---- COUNTDOWN ----
+function countdown(){
+  const next=new Date(new Date().getFullYear()+1,0,1);
+  const diff=next-new Date();
+  const d=Math.floor(diff/86400000),
+        h=Math.floor(diff/3600000)%24,
+        m=Math.floor(diff/60000)%60,
+        s=Math.floor(diff/1000)%60;
+  document.getElementById("countdown").innerText=
+   `New Year in: ${d}d ${h}h ${m}m ${s}s`;
+}
+setInterval(countdown,1000);
+
+// ---- SHARE ----
+function shareWhatsApp(){
+  if(!lastMessage){alert("Create a wish first 🙂");return;}
+  window.open("https://wa.me/?text="+encodeURIComponent(lastMessage),"_blank");
+}
+
+// ---- STORAGE: RECORD EVERY ENTRY ----
+function getEntries(){
+  return JSON.parse(localStorage.getItem("ny_entries")||"[]");
+}
+function saveEntry(e){
+  const list=getEntries();
+  list.push({...e,time:Date.now()});
+  localStorage.setItem("ny_entries",JSON.stringify(list));
+}
+function updateLove(index,newVal){
+  const list=getEntries();
+  list[index].love=newVal;
+  localStorage.setItem("ny_entries",JSON.stringify(list));
+  renderStats();
+}
+
+// render stats list
+function renderStats(){
+  const list=getEntries();
+  const box=document.getElementById("statsList");
+  if(!list.length){box.innerHTML="No entries yet.";return;}
+
+  box.innerHTML=list
+    .slice()  // copy
+    .reverse() // newest first
+    .map((e,i)=>{
+      const idx=list.length-1-i;
+      return `
+      <div class="statRow">
+        <div class="label">
+          <span><b>${e.name}</b> — ${e.category}</span>
+          <span>${e.love}%</span>
+        </div>
+        <div class="bar" style="width:${e.love}%"></div>
+        <input type="range" min="50" max="100" value="${e.love}"
+          oninput="updateLove(${idx},this.value)" />
+      </div>`;
+    }).join("");
+}
+renderStats();
+
+// ---- FIREWORKS ----
+function spawnFirework(boost=0){
+  const f=document.createElement("div");
+  f.className="firework";
+  const size=(Math.random()*10+6)+boost;
+  f.style.width=f.style.height=size+"px";
+  f.style.left=Math.random()*100+"vw";
+  f.style.top=Math.random()*100+"vh";
+  f.style.background=`hsl(${Math.random()*360},100%,60%)`;
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(),1100);
+}
+setInterval(()=>spawnFirework(),250);
+
+// ---- GAME ----
+const gameModal=document.getElementById("gameModal");
+const gameArea=document.getElementById("gameArea");
+let running=false,spawn=null,score=0,speed=30;
+
+function openGame(){gameModal.style.display="flex";loadBoard();}
+function closeGame(){gameModal.style.display="none";stopGame();}
+function startGame(){
+  stopGame();score=0;speed=30;
+  document.getElementById("scoreBox").innerText="Score: 0";
+  running=true;
+  spawn=setInterval(()=>running&&spawnStar(),800);
+}
+function stopGame(){running=false;clearInterval(spawn);gameArea.innerHTML="";}
+
+function spawnStar(){
+  const star=document.createElement("div");
+  star.style.cssText="position:absolute;width:22px;height:22px;border-radius:50%;background:gold;box-shadow:0 0 10px gold;left:"+Math.random()*90+"%;top:-25px";
+  let y=-25;
+  const fall=setInterval(()=>{
+    if(!running)return clearInterval(fall);
+    y+=(score>15?6:score>8?5:4);
+    star.style.top=y+"px";
+    if(y>230){clearInterval(fall);star.remove();gameOver();}
+  },speed);
+
+  star.onclick=()=>{
+    score++;document.getElementById("scoreBox").innerText="Score: "+score;
+    clearInterval(fall);star.remove();
+    if(score%5===0){speed=Math.max(14,speed-2);spawnFirework(22);}
+    else spawnFirework(10);
+  };
+  gameArea.appendChild(star);
+}
+
+function gameOver(){
+  running=false;clearInterval(spawn);
+  alert("Game Over! Score: "+score);
+  saveScore(score);gameArea.innerHTML="";
+}
+
+function saveScore(s){
+  const list=JSON.parse(localStorage.getItem("ny_board")||"[]");
+  list.push(s);localStorage.setItem("ny_board",JSON.stringify(list));
+  loadBoard();
+}
+function loadBoard(){
+  const list=JSON.parse(localStorage.getItem("ny_board")||"[]")
+               .sort((a,b)=>b-a).slice(0,5);
+  document.getElementById("leaderboard").innerHTML =
+    "<b>🏆 Leaderboard</b><br>"+
+    (list.length?list.map((s,i)=>`${i+1}. ${s}`).join("<br>")
+                :"No scores yet.");
+}
+</script>
+
+</body>
+</html>
