@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>New Year Wishes — Zenith</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  background: radial-gradient(circle at top,#0f172a,#020617);
+  color:white;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.wrapper{
+  width:95%;
+  max-width:900px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.card{
+  padding:20px;
+  border-radius:20px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 25px rgba(255,255,255,.15);
+}
+
+h1{margin-top:0;text-align:center;text-shadow:0 0 20px gold;}
+.small{opacity:.9;font-size:.9rem;text-align:center;margin-bottom:10px}
+
+input,select{
+  width:100%;padding:10px;border-radius:25px;border:none;
+  outline:none;margin:7px 0;
+}
+
+button{
+  padding:10px 16px;border-radius:25px;border:none;
+  cursor:pointer;font-weight:600;
+  background:linear-gradient(135deg,#ff8c00,#ffd700);
+  box-shadow:0 10px 20px rgba(255,193,7,.45);
+}
+
+.flex{display:flex;gap:8px;flex-wrap:wrap}
+.center{text-align:center}
+
+/* shayari */
+.shayari{margin-top:12px;white-space:pre-line;opacity:0}
+.shayari.show{animation:fade .6s ease forwards}
+@keyframes fade{to{opacity:1}}
+
+.signature{margin-top:10px;font-style:italic;opacity:.8}
+.love{margin-top:6px;font-size:.9rem}
+
+/* stats panel */
+#statsList{
+  max-height:280px;
+  overflow:auto;
+  margin-top:8px;
+}
+.statRow{
+  background:rgba(255,255,255,.07);
+  border-radius:12px;
+  padding:8px 10px;
+  margin-bottom:6px;
+}
+.bar{
+  height:7px;border-radius:7px;
+  background:linear-gradient(90deg,#ffd700,#ff7f00);
+}
+.label{font-size:.85rem;display:flex;justify-content:space-between;margin-bottom:4px}
+
+/* fireworks */
+.firework{
+  position:absolute;border-radius:50%;
+  mix-blend:screen;pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <!-- WISH CARD -->
+  <div class="card">
+    <h1>🎆 Happy New Year 🎆</h1>
+    <div class="small" id="countdown"></div>
+
+    <input id="nameInput" placeholder="Friend name..." />
+    <select id="category">
+      <option value="friends">Friends ❤️</option>
+      <option value="family">Family 👨‍👩‍👧‍👦</option>
+      <option value="love">Love 💖</option>
+    </select>
+
+    <div class="center">
+      <button onclick="generate()">Create Wish ✨</button>
+      <button onclick="shareWhatsApp()">Share 📲</button>
+      <button onclick="openGame()">Game ⭐</button>
+    </div>
+
+    <div class="shayari" id="shayariBox"></div>
+    <div class="love" id="loveLevel"></div>
+    <div class="signature" id="fromBox"></div>
+  </div>
+
+  <!-- STATS / LOVE LOG -->
+  <div class="card">
+    <h3>💖 Friends & Love Stats</h3>
+    <p style="opacity:.9;font-size:.85rem">
+      Every time someone enters their name, it is saved here automatically.
+      You can also adjust how much they love/like you.
+    </p>
+
+    <div id="statsList"></div>
+  </div>
+
+</div>
+
+<!-- GAME POPUP -->
+<div id="gameModal" style="display:none;position:fixed;inset:0;background:#000000cc;align-items:center;justify-content:center;z-index:50">
+  <div class="card" style="max-width:420px;width:95%;text-align:center">
+    <h3>⭐ Catch the Stars</h3>
+    <div id="gameArea" style="height:250px;background:#020617;border-radius:14px;position:relative;overflow:hidden;margin-bottom:6px"></div>
+    <div id="scoreBox">Score: 0</div>
+
+    <div class="flex center">
+      <button onclick="startGame()">Start</button>
+      <button onclick="closeGame()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- background music -->
+<audio id="bgMusic" loop autoplay volume="0.3">
+  <source src="https://cdn.pixabay.com/download/audio/2023/01/07/audio_4ce1a45cae.mp3?filename=soft-piano-129777.mp3" type="audio/mpeg"/>
+</audio>
+
+<script>
+// ---- SHAYARI ----
+const data={
+friends:[
+`{name}, dosti ka rishta har saal aur gehra ho jaaye,
+Khushiyon ka har pal tumhare naam ho jaaye 💫`,
+`{name}, tumhari muskurahat meri dua hai,
+Iss naye saal mein humari dosti aur khaas ho jaaye ❤️`
+],
+family:[
+`{name}, rab tumhari zindagi ko barkat se bhar de,
+Ghar hamesha pyaar se roshan rahe 💕`,
+`{name}, har subah sukoon, har shaam khushi,
+Naya saal tumhari family ke liye meetha ho 💖`
+],
+love:[
+`{name}, har dhadkan ek naya sapna ban kar aaye,
+Aur naya saal sirf pyaar laaye 💘`,
+`{name}, hamari kahani aur khoobsurat ho,
+Aur har dua bas tum par thehar jaaye 💞`
+]
+};
+
+let lastMessage="";
+function generate(){
+  const name=document.getElementById("nameInput").value.trim();
+  if(!name){alert("Enter a name 🙂");return;}
+  const cat=document.getElementById("category").value;
+  const t=data[cat][Math.floor(Math.random()*data[cat]()*]()
