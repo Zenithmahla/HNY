@@ -1,134 +1,330 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Happy New Year 🎉</title>
+<title>New Year Wishes</title>
 
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient( circle at top, #0a0a28, #000 );
-    font-family: "Poppins", system-ui, sans-serif;
-    overflow: hidden;
-    color: #fff;
-  }
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  background: radial-gradient(circle at top,#0f172a,#020617);
+  color:white;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
 
-  .container {
-    text-align: center;
-    padding: 20px 30px;
-    border-radius: 24px;
-    backdrop-filter: blur(8px);
-    background: rgba(255,255,255,0.08);
-    box-shadow: 0 0 25px rgba(255,255,255,0.15);
-  }
+.card{
+  text-align:center;
+  padding:24px 26px;
+  border-radius:22px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  box-shadow:0 0 25px rgba(255,255,255,.15);
+  width:95%;
+  max-width:520px;
+  position:relative;
+  z-index:5;
+}
 
-  h1 {
-    font-size: 3rem;
-    margin: 0 0 10px;
-    letter-spacing: 2px;
-    text-shadow: 0 0 15px #ffd700, 0 0 25px #ff8c00;
-  }
+h1{margin:0 0 6px;text-shadow:0 0 20px gold;}
+.countdown{font-size:.95rem;margin-bottom:10px;opacity:.9;}
+input, select{
+  width:100%;padding:10px;border-radius:25px;border:none;
+  outline:none;margin:10px 0;
+}
+button{
+  padding:10px 18px;border-radius:25px;border:none;
+  font-weight:600;cursor:pointer;
+  background:linear-gradient(135deg,#ff8c00,#ffd700);
+  box-shadow:0 10px 20px rgba(255,193,7,.45);
+}
+.shayari{margin-top:18px;line-height:1.6;white-space:pre-line;}
+.signature{margin-top:14px;opacity:.9;font-style:italic;}
+.share{margin-top:14px;font-size:.9rem;}
+.love-meter{margin-top:10px}
 
-  p {
-    margin: 8px 0 18px;
-    font-size: 1.1rem;
-    opacity: .9;
-  }
+/* Fireworks */
+.firework{
+  position:absolute;border-radius:50%;
+  pointer-events:none;mix-blend:screen;
+}
 
-  .name {
-    color: #ffd700;
-    font-weight: 700;
-  }
-
-  button {
-    padding: 10px 18px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: .95rem;
-    background: linear-gradient(135deg, #ff8c00, #ffd700);
-    box-shadow: 0 8px 18px rgba(255, 193, 7, .45);
-  }
-
-  button:hover { transform: translateY(-1px) scale(1.02); }
-
-  /* Confetti */
-  .confetti {
-    position: absolute;
-    width: 10px;
-    height: 14px;
-    background: #fff;
-    top: -20px;
-    opacity: .9;
-    border-radius: 2px;
-    animation: fall 4s linear infinite;
-  }
-
-  @keyframes fall {
-    to {
-      transform: translateY(110vh) rotate(360deg);
-    }
-  }
-
-  /* Stars */
-  .star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle 2.5s infinite alternate;
-  }
-
-  @keyframes twinkle {
-    from { opacity: .2; }
-    to   { opacity: 1;  box-shadow: 0 0 8px white; }
-  }
+/* Game modal */
+#gameModal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;align-items:center;
+  justify-content:center;z-index:20;
+}
+.game-box{
+  background:rgba(255,255,255,.1);
+  border-radius:16px;
+  padding:16px;
+  width:95%;max-width:420px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(255,255,255,.2);
+}
+#gameArea{
+  margin-top:10px;
+  background:#020617;
+  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+  height:260px;
+}
+.starItem{
+  position:absolute;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:gold;
+  box-shadow:0 0 10px gold;
+}
+.score{margin-top:6px;font-size:.95rem;}
 </style>
 </head>
 
 <body>
-<div class="container">
+
+<div class="card">
   <h1>🎆 Happy New Year 🎆</h1>
-  <p>Wishing you joy, success, and amazing memories in <span id="year"></span>!</p>
 
-  <p>From: <span class="name">Your Friend</span></p>
+  <div class="countdown" id="countdown"></div>
 
-  <button onclick="alert('Have an awesome year ahead! 🎉')">
-    Send Good Vibes ✨
-  </button>
+  <input id="nameInput" placeholder="Enter your name..." />
+
+  <select id="category">
+    <option value="friends">Friends Shayari 🤝</option>
+    <option value="family">Family Shayari 👨‍👩‍👧‍👦</option>
+    <option value="love">Love Shayari ❤️</option>
+  </select>
+
+  <div class="love-meter">
+    Love level with me: 
+    <input type="range" id="loveRange" min="0" max="100" value="50" />
+    <span id="loveLabel">50%</span>
+  </div>
+
+  <button onclick="generate()">Show My New Year Shayari ✨</button>
+
+  <div class="shayari" id="shayariBox"></div>
+  <div class="signature" id="fromBox"></div>
+
+  <div class="share">
+    <button onclick="shareWhatsApp()">Share on WhatsApp 📲</button>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="openGame()">Play Mini-Game ⭐</button>
+  </div>
 </div>
 
+<!-- Game Modal -->
+<div id="gameModal">
+  <div class="game-box">
+    <h3>⭐ Catch the Stars ⭐</h3>
+    <p>Tap the stars — they get faster as you score!</p>
+    <div id="gameArea"></div>
+    <div class="score" id="scoreBox">Score: 0</div>
+    <div style="margin-top:10px;">
+      <button onclick="startGame()">Start</button>
+      <button onclick="closeGame()">Close</button>
+    </div>
+  </div>
+</div>
+
+<audio id="bgMusic" loop autoplay volume="0.3">
+  <source src="https://cdn.pixabay.com/download/audio/2023/01/07/audio_4ce1a45cae.mp3?filename=soft-piano-129777.mp3" type="audio/mpeg" />
+</audio>
+
 <script>
-  // Set current year
-  document.getElementById("year").textContent = new Date().getFullYear();
+// ---------- SHAYARIS BY CATEGORY ----------
+const shayariSets = {
+friends: [
+`🤝 {name},
+Dosti ka rishta yun hi hamesha gehra rahe,
+Door rehkar bhi dil ke paas tumhara chehra rahe.
+Naya saal tumhe har khushi de,
+Aur humari dosti par rab ki rehmat barse 💛`,
 
-  // Create stars
-  for (let i = 0; i < 80; i++) {
-    const s = document.createElement("div");
-    s.className = "star";
-    s.style.left = Math.random() * 100 + "vw";
-    s.style.top  = Math.random() * 100 + "vh";
-    s.style.animationDelay = Math.random() * 2 + "s";
-    document.body.appendChild(s);
-  }
+`🥳 {name},
+Dost ho tum — isliye har saal khaas lagta hai,
+Tumhare bina har pal adhoora sa lagta hai.
+Naya saal tumhari zindagi mein
+hazaaron muskurahat lekar aaye 💫`
+],
 
-  // Create confetti
-  for (let i = 0; i < 60; i++) {
-    const c = document.createElement("div");
-    c.className = "confetti";
-    c.style.left = Math.random() * 100 + "vw";
-    c.style.animationDelay = Math.random() * 4 + "s";
-    c.style.background = `hsl(${Math.random()*360}, 80%, 60%)`;
-    document.body.appendChild(c);
+family: [
+`👨‍👩‍👧‍👦 {name},
+Parivaar hi zindagi ki sabse badi daulat hai,
+Aur tum us daulat ka sabse khoobsurat hissa ho.
+Naya saal tum sabko sehat, sukoon
+aur pyaar se bhar de ❤️`,
+
+`🏠 {name},
+Ghar tabhi ghar lagta hai jab apne saath hote hain,
+Tumhare bina har khushi adhuri si hoti hai.
+Naya saal tumhare liye
+khushiyon ka tyohar ban kar aaye ✨`
+],
+
+love: [
+`❤️ {name},
+Tumhare saath guzarne wala har lamha yaad ban jaata hai,
+Dil ki har dhadkan tum par qurbaan ho jaati hai.
+Naya saal tumhare saath ho,
+toh zindagi aur bhi khoobsurat lagti hai 💕`,
+
+`💖 {name},
+Tum meri dua bhi ho aur meri khwahish bhi,
+Tum meri muskurahat ho aur meri chahat bhi.
+Naya saal tumhe itni khushiyan de,
+jitna pyaar mere dil mein tumhare liye hai 🌙`
+]
+};
+
+const loveLabel = document.getElementById("loveLabel");
+document.getElementById("loveRange").oninput = e=>{
+  loveLabel.innerText = e.target.value + "%";
+};
+
+function generate(){
+  const name = document.getElementById("nameInput").value.trim();
+  const cat = document.getElementById("category").value;
+  const love = document.getElementById("loveRange").value;
+
+  if(!name){ alert("Please enter your name 🙂"); return; }
+
+  const arr = shayariSets[cat];
+  const text = arr[Math.floor(Math.random()*arr.length)]
+    .replaceAll("{name}", name)
+    + `\n\n❤️ Love level with me: ${love}%`;
+
+  document.getElementById("shayariBox").innerText = text;
+  document.getElementById("fromBox").innerText = "— With love,  Zenith Mahla";
+
+  lastMessage = text + "\n\n— With love, Zenith Mahla";
+}
+
+// ---------- COUNTDOWN ----------
+function countdown(){
+  const next = new Date(new Date().getFullYear()+1,0,1);
+  const diff = next - new Date();
+  const d = Math.floor(diff/1000/60/60/24);
+  const h = Math.floor(diff/1000/60/60)%24;
+  const m = Math.floor(diff/1000/60)%60;
+  const s = Math.floor(diff/1000)%60;
+  document.getElementById("countdown").innerText =
+    `New Year in: ${d}d ${h}h ${m}m ${s}s`;
+}
+setInterval(countdown,1000);
+
+// ---------- SHARE ----------
+let lastMessage = "";
+function shareWhatsApp(){
+  if(!lastMessage){ alert("Generate a shayari first 🙂"); return; }
+  window.open("https://wa.me/?text="+encodeURIComponent(lastMessage),"_blank");
+}
+
+// ---------- FIREWORKS ----------
+function spawnFirework(sizeBoost=0,count=1){
+  for(let i=0;i<count;i++){
+    const f=document.createElement("div");
+    f.className="firework";
+    const size=(Math.random()*10+6)+sizeBoost;
+    f.style.width=f.style.height=size+"px";
+    f.style.left=Math.random()*100+"vw";
+    f.style.top=Math.random()*100+"vh";
+    f.style.background=`hsl(${Math.random()*360},100%,60%)`;
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),1200);
   }
+}
+setInterval(()=>spawnFirework(),220);
+
+// ---------- GAME ----------
+const gameModal=document.getElementById("gameModal");
+const gameArea=document.getElementById("gameArea");
+const scoreBox=document.getElementById("scoreBox");
+
+let score=0,running=false,spawnLoop=null,fallSpeed=4,spawnRate=700;
+
+function openGame(){ gameModal.style.display="flex"; }
+function closeGame(){ gameModal.style.display="none"; stopGame(); }
+
+function startGame(){
+  stopGame();
+  score=0; fallSpeed=4; spawnRate=700;
+  scoreBox.innerText="Score: 0";
+  running=true;
+  spawnLoop=setInterval(spawnStar,spawnRate);
+}
+
+function stopGame(){
+  running=false;
+  clearInterval(spawnLoop);
+  gameArea.innerHTML="";
+}
+
+function levelUp(){
+  // faster + more fireworks
+  fallSpeed+=0.8;
+  spawnRate=Math.max(300,spawnRate-60);
+  clearInterval(spawnLoop);
+  spawnLoop=setInterval(spawnStar,spawnRate);
+
+  // celebrate with big fireworks 🎇
+  spawnFirework(14,6);
+}
+
+function spawnStar(){
+  if(!running) return;
+  const star=document.createElement("div");
+  star.className="starItem";
+  star.style.left=Math.random()*90+"%";
+  star.style.top="-25px";
+
+  let y=-25;
+  const fall=setInterval(()=>{
+    if(!running){ clearInterval(fall); return; }
+    y+=fallSpeed;
+    star.style.top=y+"px";
+    if(y>235){
+      clearInterval(fall);
+      star.remove();
+      gameOver();
+    }
+  },30);
+
+  star.onclick=()=>{
+    score++;
+    scoreBox.innerText="Score: "+score;
+    clearInterval(fall);
+    star.remove();
+
+    // fireworks every score
+    spawnFirework(6,2);
+
+    // level milestones
+    if([5,10,20,30].includes(score)) levelUp();
+  };
+
+  gameArea.appendChild(star);
+}
+
+function gameOver(){
+  running=false;
+  clearInterval(spawnLoop);
+  alert("Game Over! Your score: "+score);
+  gameArea.innerHTML="";
+}
 </script>
+
 </body>
 </html>
+
